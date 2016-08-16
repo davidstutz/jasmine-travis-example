@@ -206,28 +206,14 @@ Go to [Travis CI](https://travis-ci.org/) and sign in with the GitHub account. S
 Create `.travis.yml` in the root of the repository:
 
     language: node_js
+    script: karma start tests/karma.conf.js --single-run
     node_js:
-    - "node"
-    branches:
-    only:
-    - master
-
-However, in order to run browser tests in Travis, we have to create a custom launcher for Travis. The files `.travis.yml` and `tests/karma.conf.js` are adapted as follows:
-
-`.travis.yml`:
-
-    language: node_js
-    before_install:
-      - export CHROME_BIN=chromium-browser
-      - export DISPLAY=:99.0
-      - sh -e /etc/init.d/xvfb start
-    node_js:
-      - "node"
+      - "0.10"
     branches:
       only:
         - master
 
-`tests/karma.conf.js`:
+However, in order to run browser tests in Travis, we are going to use phantomjs, but only if the tests are run on Travis, not when using `npm test`. Changes to `tests/karma.conf.js`:
 
     // Karma configuration
     // Generated on Wed Aug 17 2016 00:01:09 GMT+0200 (Mitteleuropäische Sommerzeit)
@@ -289,13 +275,12 @@ However, in order to run browser tests in Travis, we have to create a custom lau
           browsers: ['Chrome', 'Firefox', 'Opera', 'IE'],
 
           // e.g see https://swizec.com/blog/how-to-run-javascript-tests-in-chrome-on-travis/swizec/6647
-          customLaunchers: {
-              Chrome_travis_ci: {
-                  base: 'Chrome',
-                  flags: ['--no-sandbox']
-              }
-          },
-
+          //customLaunchers: {
+          //  Chrome_travis_ci: {
+          //    base: 'Chrome',
+          //    flags: ['--no-sandbox']
+          //  }
+          //},
 
           // Continuous Integration mode
           // if true, Karma captures browsers, runs the tests and exits
@@ -307,7 +292,7 @@ However, in order to run browser tests in Travis, we have to create a custom lau
       };
 
       if (process.env.TRAVIS) {
-        configuration.browsers = ['Chrome_travis_ci'];
+        configuration.browsers = ['PhantomJS'];
       }
 
       config.set(configuration);
