@@ -1,0 +1,15 @@
+{
+  "name": "project-name",
+  "description": "My Project's Description",
+  "version": "0.0.1",
+  "scripts": {
+    "test": "karma start tests/karma.conf.js --single-run"
+  },
+  "devDependencies": {
+    "jasmine-core": "*",
+    "karma": "*",
+    "karma-cli": "*",
+    "karma-jasmine": "*",
+    "karma-phantomjs-launcher": "*"
+  }
+}
