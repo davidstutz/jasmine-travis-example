@@ -212,6 +212,107 @@ Create `.travis.yml` in the root of the repository:
     only:
     - master
 
+However, in order to run browser tests in Travis, we have to create a custom launcher for Travis. The files `.travis.yml` and `tests/karma.conf.js` are adapted as follows:
+
+`.travis.yml`:
+
+    language: node_js
+    before_install:
+      - export CHROME_BIN=chromium-browser
+      - export DISPLAY=:99.0
+      - sh -e /etc/init.d/xvfb start
+    node_js:
+      - "node"
+    branches:
+      only:
+        - master
+
+`tests/karma.conf.js`:
+
+    // Karma configuration
+    // Generated on Wed Aug 17 2016 00:01:09 GMT+0200 (Mitteleuropäische Sommerzeit)
+
+    module.exports = function(config) {
+        var configuration = {
+
+          // base path that will be used to resolve all patterns (eg. files, exclude)
+          basePath: '',
+
+
+          // frameworks to use
+          // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
+          frameworks: ['jasmine'],
+
+
+          // list of files / patterns to load in the browser
+          files: [
+            '*.js'
+          ],
+
+
+          // list of files to exclude
+          exclude: [
+          ],
+
+
+          // preprocess matching files before serving them to the browser
+          // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+          preprocessors: {
+          },
+
+
+          // test results reporter to use
+          // possible values: 'dots', 'progress'
+          // available reporters: https://npmjs.org/browse/keyword/karma-reporter
+          reporters: ['progress'],
+
+
+          // web server port
+          port: 9876,
+
+
+          // enable / disable colors in the output (reporters and logs)
+          colors: true,
+
+
+          // level of logging
+          // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+          logLevel: config.LOG_INFO,
+
+
+          // enable / disable watching file and executing tests whenever any file changes
+          autoWatch: true,
+
+
+          // start these browsers
+          // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
+          browsers: ['Chrome', 'Firefox', 'Opera', 'IE'],
+
+          // e.g see https://swizec.com/blog/how-to-run-javascript-tests-in-chrome-on-travis/swizec/6647
+          customLaunchers: {
+              Chrome_travis_ci: {
+                  base: 'Chrome',
+                  flags: ['--no-sandbox']
+              }
+          },
+
+
+          // Continuous Integration mode
+          // if true, Karma captures browsers, runs the tests and exits
+          singleRun: false,
+
+          // Concurrency level
+          // how many browser should be started simultaneous
+          concurrency: Infinity
+      };
+
+      if (process.env.TRAVIS) {
+        configuration.browsers = ['Chrome_travis_ci'];
+      }
+
+      config.set(configuration);
+    }
+
 ## License
 
 Most of the parts are taken from the above references, but for what it's worth:
