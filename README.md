@@ -1,5 +1,7 @@
 # Jasmine and Travis Example
 
+[![Build Status](https://travis-ci.org/davidstutz/jasmine-travis-example.svg?branch=master)](https://travis-ci.org/davidstutz/jasmine-travis-example)
+
 This repository contains a minimal working example for continuous integration using Jasmine, GitHub and Travis CI. The following guide will briefly explain how to reproduce this example. While the guide is based on Windows as operating system, the steps can easily be applied in Linux or Mac OS X.
 
 References:
@@ -297,6 +299,10 @@ However, in order to run browser tests in Travis, we are going to use phantomjs,
 
       config.set(configuration);
     }
+
+## Showing Build Status
+
+See [here](https://docs.travis-ci.com/user/status-images/) how to add the build status to the README.
 
 ## License
 
