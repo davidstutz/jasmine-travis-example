@@ -65,11 +65,6 @@ module.exports = function(config) {
       //  }
       //},
 
-      phantomjsLauncher: {
-        // Have phantomjs exit if a ResourceError is encountered (useful if karma exits without killing phantom)
-        exitOnResourceError: true
-      }
-
       // Continuous Integration mode
       // if true, Karma captures browsers, runs the tests and exits
       singleRun: false,
