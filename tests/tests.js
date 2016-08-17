@@ -1,5 +1,5 @@
-describe("A suite", function() {
-  it("contains spec with an expectation", function() {
-    expect(true).toBe(true);
+describe("Travis should run Karma,", function() {
+  it("and also load jQuery", function() {
+    expect($).not.toBe(undefined);
   });
 });

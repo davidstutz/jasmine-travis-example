@@ -7,9 +7,17 @@ This repository contains a minimal working example for continuous integration us
 References:
 
 * [Setting up automated testing for a small client-side Javascript project](http://www.bryanbraun.com/2015/05/17/setting-up-automated-testing-for-a-small-client-side-javascript-project)
-* [Karma Configuration](http://karma-runner.github.io/0.12/intro/configuration.html)* [How to install PhantomJS on Windows](https://www.joecolantonio.com/2014/10/14/how-to-install-phantomjs/)
+* [Karma Configuration](http://karma-runner.github.io/0.12/intro/configuration.html)
+* [How to install PhantomJS on Windows](https://www.joecolantonio.com/2014/10/14/how-to-install-phantomjs/)
 * [How to install Node.js and NPM on Windows](http://blog.teamtreehouse.com/install-node-js-npm-windows)
 * [Jasmine Documentation](http://jasmine.github.io/2.4/introduction.html)
+* [Travis Documentation: GUI and Headless Browser Testing](https://docs.travis-ci.com/user/gui-and-headless-browsers/)
+* [How to Run JavaScript Tests in Chrome on Travis](https://swizec.com/blog/how-to-run-javascript-tests-in-chrome-on-travis/swizec/6647)
+* [Install the Latest Version of Chrome on Trevis](https://github.com/LeaVerou/bliss/issues/117)
+* [Running Travis CI Unit Tests on Google Chrome](http://blog.500tech.com/setting-up-travis-ci-to-run-tests-on-latest-google-chrome-version/)
+* [Chrome Browser not Captured for Karma Tests](https://github.com/travis-ci/travis-ci/issues/2555)
+* [Karma Chrome Launcher](https://github.com/karma-runner/karma-chrome-launcher)
+* [Karma Jasmine jQuery](https://github.com/bessdsv/karma-jasmine-jquery)
 
 ## Installing PhantomJS
 
@@ -195,13 +203,14 @@ Finally, create the `package.json` file and put it to the repository's root:
         "karma": "*",
         "karma-cli": "*",
         "karma-jasmine": "*",
-        "karma-phantomjs-launcher": "*"
+        "karma-phantomjs-launcher": "*",
+        "karma-chrome-launcher": "*"
       }
     }
 
 To test whether the setup works, open `cmd`, navigate to the root of the repository and run `npm test`. Several browser windows should open depending on the Karma configuration. **Note that the briwsers need to be installed**.
 
-## Using Travis CI
+## Using Travis CI to run Tests in Google Chrome
 
 Go to [Travis CI](https://travis-ci.org/) and sign in with the GitHub account. Select the repository to test.
 
@@ -210,95 +219,107 @@ Create `.travis.yml` in the root of the repository:
     language: node_js
     script: karma start tests/karma.conf.js --single-run
     node_js:
-      - "0.10"
-    branches:
-      only:
-        - master
+    - "0.10"
 
-However, in order to run browser tests in Travis, we are going to use phantomjs, but only if the tests are run on Travis, not when using `npm test`. Changes to `tests/karma.conf.js`:
+    before_install:
+    - export CHROME_BIN=chromium-browser
+    - export DISPLAY=:99.0
+    - sh -e /etc/init.d/xvfb start
+
+The `before_install` directive tells Travis to use Chromium for running tests. Noe we only need to adapt the Karma configuration:
 
     // Karma configuration
     // Generated on Wed Aug 17 2016 00:01:09 GMT+0200 (Mitteleuropäische Sommerzeit)
 
     module.exports = function(config) {
-        var configuration = {
+    var configuration = {
 
-          // base path that will be used to resolve all patterns (eg. files, exclude)
-          basePath: '',
+      // base path that will be used to resolve all patterns (eg. files, exclude)
+      basePath: '',
 
+      // plugins starting with karma- are autoloaded
+      plugins: ['karma-chrome-launcher', 'karma-jasmine'],
 
-          // frameworks to use
-          // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-          frameworks: ['jasmine'],
+      // frameworks to use
+      // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
+      frameworks: ['jasmine'],
 
+      // list of files / patterns to load in the browser
+      files: [
+        '*.js'
+      ],
 
-          // list of files / patterns to load in the browser
-          files: [
-            '*.js'
-          ],
+      // list of files to exclude
+      exclude: [
+      ],
 
+      // preprocess matching files before serving them to the browser
+      // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+      preprocessors: {
+      },
 
-          // list of files to exclude
-          exclude: [
-          ],
+      // test results reporter to use
+      // possible values: 'dots', 'progress'
+      // available reporters: https://npmjs.org/browse/keyword/karma-reporter
+      reporters: ['progress'],
 
+      // web server port
+      port: 9876,
 
-          // preprocess matching files before serving them to the browser
-          // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-          preprocessors: {
-          },
+      // enable / disable colors in the output (reporters and logs)
+      colors: true,
 
+      // level of logging
+      // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+      logLevel: config.LOG_INFO,
 
-          // test results reporter to use
-          // possible values: 'dots', 'progress'
-          // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-          reporters: ['progress'],
+      // enable / disable watching file and executing tests whenever any file changes
+      autoWatch: true,
 
+      // start these browsers
+      // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
+      browsers: ['Chrome', 'ChromeCanary', 'Firefox', 'Opera', 'IE'],
 
-          // web server port
-          port: 9876,
+      // e.g see https://swizec.com/blog/how-to-run-javascript-tests-in-chrome-on-travis/swizec/6647
+      customLaunchers: {
+        Chrome_travis_ci: {
+          base: 'Chrome',
+          flags: ['--no-sandbox']
+        }
+      },
 
+      // Continuous Integration mode
+      // if true, Karma captures browsers, runs the tests and exits
+      singleRun: false,
 
-          // enable / disable colors in the output (reporters and logs)
-          colors: true,
+      // Concurrency level
+      // how many browser should be started simultaneous
+      concurrency: Infinity
+    };
 
-
-          // level of logging
-          // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-          logLevel: config.LOG_INFO,
-
-
-          // enable / disable watching file and executing tests whenever any file changes
-          autoWatch: true,
-
-
-          // start these browsers
-          // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-          browsers: ['Chrome', 'Firefox', 'Opera', 'IE'],
-
-          // e.g see https://swizec.com/blog/how-to-run-javascript-tests-in-chrome-on-travis/swizec/6647
-          //customLaunchers: {
-          //  Chrome_travis_ci: {
-          //    base: 'Chrome',
-          //    flags: ['--no-sandbox']
-          //  }
-          //},
-
-          // Continuous Integration mode
-          // if true, Karma captures browsers, runs the tests and exits
-          singleRun: false,
-
-          // Concurrency level
-          // how many browser should be started simultaneous
-          concurrency: Infinity
-      };
-
-      if (process.env.TRAVIS) {
-        configuration.browsers = ['PhantomJS'];
-      }
-
-      config.set(configuration);
+    if (process.env.TRAVIS) {
+        configuration.browsers = ['Chrome_travis_ci'];
     }
+
+    config.set(configuration);
+    }
+
+Note the `karma-chrome-launcher` and `karma-jasmine` plugins and the custom Chrome launcher. The last part, i.e.
+
+    if (process.env.TRAVIS) {
+        configuration.browsers = ['Chrome_travis_ci'];
+    }
+
+makes sure that the custom launcher is only used in Travis.
+
+## Using jQuery and Including Libraries
+
+To use jQuery and other libraries, include the necessary jQuery files:
+
+    files: [
+        'https://code.jquery.com/jquery-2.2.4.min.js',
+        '*.js'
+    ],
 
 ## Showing Build Status
 
